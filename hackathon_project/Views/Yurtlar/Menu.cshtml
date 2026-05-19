@@ -2,6 +2,33 @@
 
 @{
     ViewData["Title"] = "Menü";
+
+    // Ürün ismine göre akıllı resim seçme fonksiyonu
+    string GetImageForProduct(string urunAdi)
+    {
+        var name = urunAdi.ToLower();
+
+        if (name.Contains("burger") || name.Contains("whopper") || name.Contains("king") || name.Contains("kumru") || name.Contains("mac"))
+            return "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80"; // Hamburger Resmi
+
+        if (name.Contains("pizza") || name.Contains("margherita"))
+            return "https://images.unsplash.com/photo-1513104890d38-7c7f4ac1e6a2?auto=format&fit=crop&w=400&q=80"; // Pizza Resmi
+
+        if (name.Contains("döner") || name.Contains("iskender") || name.Contains("dürüm"))
+            return "https://images.unsplash.com/photo-1619599507851-d419e09d57a9?auto=format&fit=crop&w=400&q=80"; // Döner/Dürüm Resmi
+
+        if (name.Contains("tavuk") || name.Contains("zinger") || name.Contains("kanat") || name.Contains("kova"))
+            return "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=80"; // Çıtır Tavuk Resmi
+
+        if (name.Contains("kola") || name.Contains("ayran") || name.Contains("limonata") || name.Contains("ice tea") || name.Contains("mocha") || name.Contains("pepsi"))
+            return "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80"; // İçecek Resmi
+
+        if (name.Contains("sufle") || name.Contains("cheesecake") || name.Contains("tiramisu") || name.Contains("flurry"))
+            return "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=400&q=80"; // Tatlı Resmi
+
+        // Hiçbirine uymazsa varsayılan şık bir yemek resmi
+        return "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80";
+    }
 }
 
 <style>
@@ -141,27 +168,20 @@
         <h1 class="main-title">@ViewBag.RestoranAdi Menüsü</h1>
     </div>
 
-    <div class="category-filter-row">
+    @* <div class="category-filter-row">
         <button class="btn-filter active">Tümü</button>
         <button class="btn-filter">Ana Yemek</button>
         <button class="btn-filter">Yan Ürün</button>
         <button class="btn-filter">İçecek</button>
-    </div>
+    </div> *@
 
     <div class="row g-4">
         @if (Model != null && Model.Any())
         {
-            var pImages = new List<string> {
-                "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400&q=80",
-                "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80",
-                "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=400&q=80"
-                };
-            int idx = 0;
-
             foreach (var urun in Model)
             {
-                string img = pImages[idx % pImages.Count];
-                idx++;
+                // Artık rastgele index yerine akıllı resmi çekiyoruz
+                string img = GetImageForProduct(urun.UrunAdi);
 
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="menu-card">
@@ -174,13 +194,17 @@
                                 <h3 class="prod-name">@urun.UrunAdi</h3>
                                 <span class="prod-price">@urun.Fiyat.ToString("N0")TL</span>
                             </div>
-                            <a asp-controller="Yurtlar" asp-action="OdemeYap"
-                               asp-route-havuzId="@ViewBag.HavuzId"
-                               asp-route-urunAdi="@urun.UrunAdi"
-                               asp-route-fiyat="@urun.Fiyat"
-                               class="btn-add-basket">
-                                <span>+ Ekle</span>
-                            </a>
+
+                            <form asp-controller="Yurtlar" asp-action="HavuzaUrunEkle" method="post">
+                                <input type="hidden" name="havuzId" value="@ViewBag.HavuzId" />
+                                <input type="hidden" name="urunId" value="@urun.UrunId" />
+                                <input type="hidden" name="fiyat" value="@urun.Fiyat" />
+                                <input type="hidden" name="urunAdi" value="@urun.UrunAdi" />
+
+                                <button type="submit" class="btn-add-basket">
+                                    <span>+ Ekle</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

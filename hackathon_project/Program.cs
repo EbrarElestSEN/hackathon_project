@@ -28,6 +28,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Sehirler}/{action=Index}/{id?}"); // "Home" yerine "Sehirler" yazdýk
 
 app.Run();

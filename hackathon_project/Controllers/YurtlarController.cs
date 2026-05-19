@@ -45,45 +45,75 @@ namespace hackathon_project.Controllers
             return View(urunler);
         }
 
+        // YENİ EKLENEN ADIM: Menüden ürünü sepete ekleme ve Veritabanına kaydetme
+        [HttpPost]
+        public async Task<IActionResult> HavuzaUrunEkle(int havuzId, int urunId, decimal fiyat, string urunAdi)
+        {
+            // Fiyat düzeltme algoritmasını (Örn: 4500 -> 45) burada da yapıyoruz
+            if (fiyat >= 1000 && fiyat % 100 == 0)
+            {
+                fiyat = fiyat / 100;
+            }
+
+            // 1. Yeni sipariş modelini oluştur (Veritabanına yansıtılacak)
+            var yeniSiparis = new HavuzSiparisleri
+            {
+                HavuzId = havuzId,
+                UrunId = urunId,
+                KullaniciId = 1, // Şimdilik giriş yapan kullanıcıyı 1 kabul ediyoruz
+                Adet = 1,
+                Tutar = fiyat,
+                SiparisTarihi = DateTime.Now
+            };
+
+            // 2. Modeli hafızaya ekle
+            _context.HavuzSiparisleris.Add(yeniSiparis);
+
+            // 3. Veritabanına kesin olarak KAZI
+            await _context.SaveChangesAsync();
+
+            // 4. Kayıt bittikten sonra kullanıcıyı Ödeme sayfasına yönlendir (Mevcut akışını bozmuyoruz)
+            return RedirectToAction("OdemeYap", new { havuzId = havuzId, urunAdi = urunAdi, fiyat = fiyat });
+        }
+
         // ADIM 4.5: Kart Bilgileri ve Ödeme Onay Sayfası
-        // Controllers/YurtlarController.cs içindeki ilgili metodu bununla güncelle:
-        // Controllers/YurtlarController.cs içindeki OdemeYap metodunu bununla değiştir:
         public IActionResult OdemeYap(int havuzId, string urunAdi, decimal fiyat)
         {
             ViewBag.HavuzId = havuzId;
             ViewBag.UrunAdi = urunAdi;
+            ViewBag.Fiyat = fiyat; // HavuzaUrunEkle metodunda fiyat düzeltildiği için burada bir daha düzeltmeye gerek yok
 
-            // KÖKTEN ÇÖZÜM ALGORİTMASI: 
-            // Eğer fiyat sunucu hatasından dolayı katlanarak geldiyse (Örn: 4500, 19000 vb.)
-            // ve virgülden sonraki küsurat sıfırsa, bunu olması gereken gerçek değere bölüyoruz.
-            if (fiyat >= 1000 && fiyat % 100 == 0)
-            {
-                // Öğrenci yemek fiyatları mantıken 1000 TL'den küçük olacağı için 
-                // hatalı katlanan tüm fiyatları (4500 -> 45, 19000 -> 190) orijinaline döndürür.
-                fiyat = fiyat / 100;
-            }
-
-            ViewBag.Fiyat = fiyat;
             return View();
         }
+
         // ADIM 5: Ödeme Başarılı ve Sayaç Ekranı
         public async Task<IActionResult> OdemeBasarili(int havuzId, decimal tutar)
         {
+            // Havuzu veritabanından buluyoruz
             var havuz = await _context.Havuzlars
                 .Include(h => h.Restoran)
                 .FirstOrDefaultAsync(h => h.HavuzId == havuzId);
 
-            // Test aşamasında ödemenin havuzu doldurup doldurmadığını canlı görmek için
-            // simüle olarak MevcutTutar'ı gelen ürün tutarı kadar arttıralım:
             if (havuz != null)
             {
+                // 1. Havuzun mevcut tutarını gelen ürünün fiyatı kadar artırıyoruz
                 havuz.MevcutTutar += tutar;
+
+                // 2. EĞER MİNYUMUM TUTARA ULAŞILDIYSA: Havuzun durumunu otomatik "Doldu (1)" yapalım
+                if (havuz.MevcutTutar >= havuz.MinimumTutar)
+                {
+                    havuz.Durum = 1; // 1 = Doldu (Kod mimarindeki kurala göre)
+                }
+
+                // 3. ALTIN VURUŞ: Bu değişikliği SQL veritabanına kalıcı olarak kaydet!
+                await _context.SaveChangesAsync();
             }
 
+            // Arayüze (View) bilgileri gönderiyoruz
             ViewBag.OdenenTutar = tutar;
             ViewBag.RestoranAdi = havuz?.Restoran?.RestoranAdi ?? "Restoran";
 
-            return View(havuz); // <-- Burası önemli: havuz modelini view'a gönderiyoruz
+            return View(havuz);
         }
     }
 }
