@@ -1,0 +1,152 @@
+﻿@model IEnumerable<hackathon_project.Models.Sehirler>
+
+@{
+    ViewData["Title"] = "Şehir Seç";
+}
+
+<style>
+    body {
+        background-color: #121418;
+        color: #FFFFFF;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .stepper-section {
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 40px;
+    }
+
+    .step-subtitle-top {
+        color: #FF6B00;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    .main-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .step-desc {
+        color: #8A8F98;
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+    }
+
+    .steps-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .step-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+        .step-circle.current {
+            background-color: transparent;
+            border: 2px solid #FF6B00;
+            color: #FF6B00;
+        }
+
+        .step-circle.pending {
+            background-color: #1E2128;
+            color: #6C727F;
+        }
+
+    .step-line {
+        width: 40px;
+        height: 2px;
+        background-color: #2A2D35;
+    }
+
+    /* Şehir Butonları Tasarımı */
+    .city-card {
+        background-color: #1E2128;
+        border: 1px solid #2A2D35;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .city-card:hover {
+            transform: translateY(-3px);
+            border-color: #3A3D45;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            color: #FFFFFF;
+        }
+
+    .city-icon {
+        font-size: 1.5rem;
+        display: inline-block;
+    }
+</style>
+
+<div class="container mt-4">
+
+    <div class="stepper-section">
+        <div class="step-subtitle-top">ADIM 1 / 5</div>
+        <h1 class="main-title">Hangi Şehirde Yaşıyorsun?</h1>
+        <p class="step-desc">Şehrini seçerek devam et</p>
+
+        <div class="steps-container">
+            <div class="step-circle current">1</div>
+            <div class="step-line"></div>
+            <div class="step-circle pending">2</div>
+            <div class="step-line"></div>
+            <div class="step-circle pending">3</div>
+            <div class="step-line"></div>
+            <div class="step-circle pending">4</div>
+            <div class="step-line"></div>
+            <div class="step-circle pending">5</div>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center mt-2">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var sehir in Model)
+            {
+                // Veritabanındaki şehirlere göre uygun emojiler atayalım
+                string emoji = "🏢";
+                if (sehir.SehirAdi.Contains("Ankara")) emoji = "🏛️";
+                else if (sehir.SehirAdi.Contains("Eskişehir")) emoji = "🎓";
+                else if (sehir.SehirAdi.Contains("Bilecik")) emoji = "🧱";
+                else if (sehir.SehirAdi.Contains("İstanbul")) emoji = "🌉";
+                else if (sehir.SehirAdi.Contains("İzmir")) emoji = "⚓";
+
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="Yurtlar" asp-action="Index" asp-route-sehirId="@sehir.SehirId" class="city-card">
+                        <span class="city-icon">@emoji</span>
+                        <span>@sehir.SehirAdi</span>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted">
+                <p>Kayıtlı şehir bulunamadı.</p>
+            </div>
+        }
+    </div>
+</div>

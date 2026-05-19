@@ -1,0 +1,340 @@
+﻿@model IEnumerable<hackathon_project.Models.Havuzlar>
+
+@{
+    ViewData["Title"] = "Aktif Sipariş Havuzları";
+}
+
+<style>
+    /* DARK PREMIUM UI - EXACT MATCH CSS */
+    body {
+        background-color: #121212; /* Tam koyu arka plan */
+        color: #FFFFFF; /* Beyaz ana yazı */
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .dark-container {
+        background-color: #121212;
+    }
+
+    .page-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        margin-bottom: 20px;
+    }
+
+    .main-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    /* Üstteki Sarı Outline Buton */
+    .btn-gold-outline {
+        background-color: transparent;
+        border: 2px solid #F7C214;
+        color: #F7C214;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+        .btn-gold-outline:hover {
+            background-color: #F7C214;
+            color: #121212;
+            box-shadow: 0 0 15px rgba(247, 194, 20, 0.4);
+        }
+
+    /* Havuz Kartı */
+    .dark-pool-card {
+        background-color: #1e1e1e; /* Hafif açık siyah kart */
+        border-radius: 8px; /* Köşeler hafif yuvarlak */
+        padding: 20px;
+        position: relative;
+        border: 1px solid #333; /* Belirgin olmayan ince sınır */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .dark-pool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            border-color: #555;
+        }
+
+    /* Kart Header (Kullanıcı ve İkon) */
+    .card-user-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 15px;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background-color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #F7C214; /* Vurgu sarı */
+        font-weight: 700;
+        font-size: 1.2rem;
+        border: 1px solid #444;
+    }
+
+    .username-text {
+        font-size: 0.9rem;
+        color: #B0B0B0; /* Daha sönük gri */
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .product-icon {
+        font-size: 1.5rem;
+        color: #F7C214; /* Vurgu sarı */
+    }
+
+    /* Kart Body */
+    .product-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 0 0 8px 0;
+    }
+
+    .product-desc {
+        color: #A0A0A0; /* Gri metin */
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+        line-height: 1.5;
+    }
+
+    /* Fiyat Bilgileri (Collected/Goal) */
+    .price-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .stat-block {
+        text-align: left;
+    }
+
+    .stat-label {
+        color: #B0B0B0;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 3px;
+    }
+
+    .stat-value {
+        color: #FFFFFF;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .stat-block.target {
+        text-align: right;
+    }
+
+        .stat-block.target .stat-label {
+            color: #A0A0A0; /* Daha sönük gri */
+        }
+
+        .stat-block.target .stat-value {
+            color: #A0A0A0; /* Hedef daha sönük */
+        }
+
+    /* İlerleme Çubuğu (Thin and Gold) */
+    .dark-progress {
+        height: 4px;
+        border-radius: 2px;
+        background-color: #333;
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
+
+    .dark-progress-bar {
+        height: 100%;
+        border-radius: 2px;
+        background-color: #F7C214; /* Tam sarı dolgu */
+        transition: width 0.8s ease-in-out;
+    }
+
+    /* Kart Footer (Katılımcı ve Buton) */
+    .card-footer-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #333;
+    }
+
+    .participants-text {
+        font-size: 0.85rem;
+        color: #B0B0B0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .participants-text small {
+            color: #F7C214;
+            font-weight: 600;
+        }
+
+    /* Alttaki Tam Sarı Buton */
+    .btn-gold {
+        background-color: #F7C214;
+        color: #121212;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none; /* Alt çizgiyi kaldıırmak için */
+        display: inline-block;
+    }
+
+        .btn-gold:hover {
+            background-color: #FFFFFF;
+            color: #121212;
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+        }
+
+    /* Boş Durum Tasarımı (Dark) */
+    .empty-state-dark {
+        text-align: center;
+        padding: 60px 20px;
+        background-color: #1e1e1e;
+        border-radius: 12px;
+        border: 2px dashed #333;
+        margin-top: 30px;
+    }
+
+    .empty-title {
+        color: #A0A0A0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .empty-desc {
+        color: #777;
+        font-size: 0.95rem;
+        margin-bottom: 25px;
+    }
+</style>
+
+<div class="container dark-container mt-4">
+
+    <div class="page-header-row">
+        <h2 class="main-title">✨ @ViewBag.RestoranAdi</h2>
+
+        <a asp-controller="Havuzlar" asp-action="YeniHavuzOlustur" asp-route-restoranId="@Context.Request.Query["restoranId"]" class="btn-gold-outline">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z" />
+            </svg>
+            YENİ HAVUZ OLUŞTUR
+        </a>
+    </div>
+
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var havuz in Model)
+            {
+                // Yüzde Hesaplama (Tam Sayı)
+                var yuzde = (havuz.MevcutTutar / havuz.MinimumTutar) * 100;
+                if (yuzde > 100) yuzde = 100;
+
+                // Kullanıcının baş harfi
+                var basHarf = !string.IsNullOrEmpty(havuz.OlusturanKullanici?.AdSoyad)
+                ? havuz.OlusturanKullanici.AdSoyad.Substring(0, 1).ToUpper()
+                : "U";
+
+                <div class="col-xxl-3 col-xl-4 col-md-6 mb-4">
+                    <div class="dark-pool-card">
+
+                        <div class="card-user-line">
+                            <div class="user-info">
+                                <div class="avatar-circle">@basHarf</div>
+                                <p class="username-text">@havuz.OlusturanKullanici?.AdSoyad</p>
+                            </div>
+                            <div class="product-icon">🍔</div>
+                        </div>
+
+                        <h3 class="product-title">@havuz.Urun?.UrunAdi</h3>
+                        <p class="product-desc">@havuz.Urun?.Aciklama</p>
+
+                        <div class="price-stats">
+                            <div class="stat-block">
+                                <div class="stat-label">TOPLANAN</div>
+                                <div class="stat-value">@havuz.MevcutTutar.ToString("N0") ₺</div>
+                            </div>
+                            <div class="stat-block target">
+                                <div class="stat-label">HEDEF</div>
+                                <div class="stat-value">@havuz.MinimumTutar.ToString("N0") ₺</div>
+                            </div>
+                        </div>
+
+                        <div class="dark-progress">
+                            <div class="dark-progress-bar" style="width: @Math.Round(yuzde)%;"></div>
+                        </div>
+
+                        <div class="card-footer-line">
+                            <span class="participants-text">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                                </svg>
+                                <small>3 Katılımcı</small> / @havuz.MaksimumKatilimci Maks.
+                            </span>
+                            <a asp-controller="Yurtlar" asp-action="Menu" asp-route-havuzId="@havuz.HavuzId" asp-route-restoranId="@havuz.RestoranId" class="btn-gold">KATIL</a>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="empty-state-dark">
+                    <h4 class="empty-title">Henüz havuz oluşturulmamış... 🍃</h4>
+                    <p class="empty-desc">Bu restoran için bekleyen aktif bir sipariş havuzu bulunmuyor.<br />Hemen bir havuz oluşturup diğer öğrencileri davet edebilirsin!</p>
+
+                    <a asp-controller="Havuzlar" asp-action="YeniHavuzOlustur" asp-route-restoranId="@Context.Request.Query["restoranId"]" class="btn-gold px-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg me-1" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z" />
+                        </svg>
+                        YENİ HAVUZ OLUŞTUR
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

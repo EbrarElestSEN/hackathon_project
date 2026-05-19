@@ -1,0 +1,261 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<hackathon_project.Models.Restoranlar>
+
+@{
+    ViewData["Title"] = "Restoran Seç";
+}
+
+<style>
+    /* DARK PREMIUM UI - RESTORANLAR EKRANI */
+    body {
+        background-color: #121418; /* Tam görseldeki koyu arka plan */
+        color: #FFFFFF;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Üst Adım (Stepper) Alanı */
+    .stepper-section {
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 40px;
+    }
+
+    .step-subtitle-top {
+        color: #FF6B00; /* Turuncu vurgu */
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    .main-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .step-desc {
+        color: #8A8F98;
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+    }
+
+    /* Adım Çizgileri ve Yuvarlaklar */
+    .steps-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .step-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+        .step-circle.completed {
+            background-color: #00D287; /* Yeşil tik */
+            color: white;
+        }
+
+        .step-circle.current {
+            background-color: transparent;
+            border: 2px solid #FF6B00;
+            color: #FF6B00;
+        }
+
+        .step-circle.pending {
+            background-color: #1E2128;
+            color: #6C727F;
+        }
+
+    .step-line {
+        width: 40px;
+        height: 2px;
+    }
+
+        .step-line.completed {
+            background-color: #00D287;
+        }
+
+        .step-line.pending {
+            background-color: #2A2D35;
+        }
+
+    /* Restoran Kartları */
+    .restaurant-card {
+        background-color: #1E2128;
+        border-radius: 16px;
+        overflow: hidden;
+        text-decoration: none;
+        display: block;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #2A2D35;
+    }
+
+        .restaurant-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border-color: #3A3D45;
+        }
+
+    .card-img-container {
+        position: relative;
+        height: 180px;
+        background-color: #2A2D35;
+    }
+
+        .card-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .time-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background-color: rgba(255, 107, 0, 0.9);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        backdrop-filter: blur(4px);
+    }
+
+    .card-info {
+        padding: 20px;
+    }
+
+    .rest-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 15px;
+    }
+
+    .stats-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #8A8F98;
+        margin-bottom: 8px;
+    }
+
+    .highlight-text {
+        color: #FF6B00;
+        font-weight: 700;
+    }
+
+    /* Görseldeki gibi ince progress bar */
+    .pool-progress-bg {
+        height: 4px;
+        background-color: #2A2D35;
+        border-radius: 2px;
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+
+    .pool-progress-fill {
+        height: 100%;
+        background-color: #FF6B00;
+        border-radius: 2px;
+    }
+
+    .card-footer-text {
+        text-align: center;
+        color: #6C727F;
+        font-size: 0.8rem;
+    }
+
+</style>
+
+<div class="container mt-4">
+
+    <div class="stepper-section">
+        <div class="step-subtitle-top">ADIM 3 / 5</div>
+        <h1 class="main-title">Restoran Seç</h1>
+        <p class="step-desc">Her restoranın ayrı havuzu var • Ödeme yapıldıktan sonra havuza eklenir</p>
+
+        <div class="steps-container">
+            <div class="step-circle completed">✓</div>
+            <div class="step-line completed"></div>
+
+            <div class="step-circle completed">✓</div>
+            <div class="step-line completed"></div>
+
+            <div class="step-circle current">3</div>
+            <div class="step-line pending"></div>
+
+            <div class="step-circle pending">4</div>
+            <div class="step-line pending"></div>
+
+            <div class="step-circle pending">5</div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        @if (Model != null && Model.Any())
+        {
+            // Resimler için rastgele yemek görselleri (görsel zenginlik için)
+            var imgList = new List<string> {
+                "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=500&q=80", // Burger
+                "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=80", // Pizza
+                "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=500&q=80", // Tavuk
+                "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80"  // Burger 2
+                };
+            int imgIndex = 0;
+
+            foreach (var restoran in Model)
+            {
+                // Görseldeki progress bar hissini vermek için Min Sepet tutarını kullanıyoruz
+                string imgSrc = imgList[imgIndex % imgList.Count];
+                imgIndex++;
+
+                <div class="col-xl-4 col-md-6">
+                    <a asp-controller="Havuzlar" asp-action="Index" asp-route-restoranId="@restoran.RestoranId" class="restaurant-card">
+
+                        <div class="card-img-container">
+                            <img src="@imgSrc" alt="@restoran.RestoranAdi">
+                            <div class="time-badge">@restoran.OrtalamaTeslimat dk</div>
+                        </div>
+
+                        <div class="card-info">
+                            <h3 class="rest-name">@restoran.RestoranAdi</h3>
+
+                            <div class="stats-row">
+                                <span>Min. Sepet Tutarı</span>
+                                <span class="highlight-text">@restoran.MinimumSepetTutar.ToString("N0") TL</span>
+                            </div>
+
+                            <div class="pool-progress-bg">
+                                <div class="pool-progress-fill" style="width: 100%;"></div>
+                            </div>
+
+                            <div class="card-footer-text">
+                                📍 @restoran.Sehir?.SehirAdi
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted mt-5">
+                <h4>Aktif restoran bulunamadı.</h4>
+            </div>
+        }
+    </div>
+</div>

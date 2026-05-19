@@ -1,0 +1,195 @@
+﻿@{
+    ViewData["Title"] = "Güvenli Ödeme";
+
+    // Veritabanından gelen orijinal decimal değeri alıyoruz
+    decimal netFiyat = ViewBag.Fiyat ?? 0;
+}
+
+<style>
+    body {
+        background-color: #121418;
+        color: #FFFFFF;
+        font-family: sans-serif;
+    }
+
+    .payment-container {
+        max-width: 450px;
+        margin: 60px auto 0 auto;
+        padding: 20px;
+    }
+
+    .summary-box {
+        background-color: #1E2128;
+        border: 1px solid #2A2D35;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .summary-title {
+        color: #8A8F98;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .summary-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #FF6B00;
+    }
+
+    .payment-card {
+        background-color: #1E2128;
+        border: 1px solid #2A2D35;
+        border-radius: 16px;
+        padding: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+        .form-group label {
+            color: #8A8F98;
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+    .form-input {
+        width: 100%;
+        background-color: #121418;
+        border: 1px solid #2A2D35;
+        border-radius: 8px;
+        padding: 12px;
+        color: white;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+        .form-input:focus {
+            border-color: #FF6B00;
+            outline: none;
+        }
+
+    .form-row {
+        display: flex;
+        gap: 15px;
+    }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+    .btn-pay-now {
+        background-color: #00D287;
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        text-align: center;
+        box-shadow: 0 0 15px rgba(0, 210, 135, 0.2);
+        transition: background 0.2s;
+        display: block;
+    }
+
+        .btn-pay-now:hover {
+            background-color: #00B372;
+        }
+</style>
+
+<div class="container payment-container">
+
+    <div class="summary-box">
+        <div class="summary-title">SEÇİLEN ÜRÜN</div>
+        <div class="text-white font-weight-bold mb-2" style="font-size:1.1rem;">@ViewBag.UrunAdi</div>
+        <div class="summary-title">ÖDENECEK TUTAR</div>
+        <div class="summary-value">@netFiyat.ToString("0.00") ₺</div>
+    </div>
+
+    <form id="paymentForm" asp-controller="Yurtlar" asp-action="OdemeBasarili" method="get">
+        <input type="hidden" name="havuzId" value="@ViewBag.HavuzId" />
+        <input type="hidden" name="tutar" value="@netFiyat.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
+
+        <div class="payment-card">
+            <h3 class="mb-4" style="font-size: 1.2rem; font-weight: 700;">💳 Kart Bilgileri</h3>
+
+            <div class="form-group">
+                <label>KART ÜZERİNDEKİ İSİM</label>
+                <input type="text" class="form-input" id="cardName" required placeholder="Ad Soyad giriniz">
+            </div>
+
+            <div class="form-group">
+                <label>KART NUMARASI</label>
+                <input type="text" class="form-input" id="cardNumber" minlength="19" maxlength="19" required placeholder="0000 0000 0000 0000">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>SON KULLANMA</label>
+                    <input type="text" class="form-input" id="expiryDate" minlength="5" maxlength="5" required placeholder="AA/YY">
+                </div>
+                <div class="form-group">
+                    <label>CVC</label>
+                    <input type="text" class="form-input" id="cvc" minlength="3" maxlength="3" required placeholder="000">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-pay-now mt-3">
+                🔒 Ödemeyi Onayla ve Katıl
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Fiyatları sabitleyen hatalı DOMContentLoaded script'i tamamen kaldırıldı.
+
+    // AA/YY maskeleme dinamiği
+    const expiryInput = document.getElementById('expiryDate');
+    expiryInput.addEventListener('input', function (e) {
+        let input = e.target.value.replace(/\D/g, '');
+        if (input.length > 2) {
+            e.target.value = input.substring(0, 2) + '/' + input.substring(2, 4);
+        } else {
+            e.target.value = input;
+        }
+    });
+
+    // Kart numarası boşluk bırakma dinamiği
+    const cardInput = document.getElementById('cardNumber');
+    cardInput.addEventListener('input', function (e) {
+        let input = e.target.value.replace(/\D/g, '');
+        let formatted = input.match(/.{1,4}/g);
+        if (formatted) {
+            e.target.value = formatted.join(' ');
+        } else {
+            e.target.value = input;
+        }
+    });
+
+    // Sadece sayı girişi kontrolü
+    document.getElementById('cvc').addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+
+    // Boş gönderilmeyi engelleyen tetikleyici
+    document.getElementById('paymentForm').addEventListener('submit', function (e) {
+        const cardName = document.getElementById('cardName').value.trim();
+        const cardNumber = document.getElementById('cardNumber').value.trim();
+        const expiryDate = document.getElementById('expiryDate').value.trim();
+        const cvc = document.getElementById('cvc').value.trim();
+
+        if(!cardName || cardNumber.length < 19 || expiryDate.length < 5 || cvc.length < 3) {
+            e.preventDefault();
+            alert("Lütfen kart bilgilerini eksiksiz ve doğru formatta doldurunuz!");
+        }
+    });
+</script>

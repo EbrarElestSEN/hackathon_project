@@ -1,0 +1,257 @@
+﻿@model hackathon_project.Models.Havuzlar
+
+@{
+    ViewData["Title"] = "Ödeme Başarılı";
+
+    // Veritabanından gelen güncel tutarları alıp hesaplıyoruz
+    // (Yeni eklenen ürünün tutarı Controller tarafında MevcutTutar'a eklendi varsayıyoruz)
+    var toplanan = Model?.MevcutTutar ?? 0;
+    var hedef = Model?.MinimumTutar ?? 1; // 0'a bölünme hatasını engellemek için
+    var yuzde = (toplanan / hedef) * 100;
+    if (yuzde > 100) yuzde = 100;
+
+    // Havuz doldu mu kontrolü
+    bool havuzDolduMu = toplanan >= hedef;
+}
+
+<style>
+    body {
+        background-color: #121418;
+        color: #FFFFFF;
+        font-family: sans-serif;
+    }
+
+    .success-wrapper {
+        text-align: center;
+        padding-top: 60px;
+    }
+
+    .success-circle {
+        width: 80px;
+        height: 80px;
+        background-color: #00D287;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px auto;
+        box-shadow: 0 0 20px rgba(0, 210, 135, 0.4);
+    }
+
+    .success-checkmark {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    .success-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .success-subtitle {
+        color: #8A8F98;
+        font-size: 1rem;
+        margin-bottom: 40px;
+    }
+
+    .status-card {
+        background-color: #1E2128;
+        border: 1px solid #2A2D35;
+        border-radius: 16px;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 25px;
+        text-align: left;
+    }
+
+    .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .pool-label {
+        color: #8A8F98;
+        font-size: 0.85rem;
+    }
+
+    .pool-heading {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 3px 0 0 0;
+    }
+
+    .percent-text {
+        font-size: 1.6rem;
+        font-weight: 700;
+        text-align: right;
+        color: #FF6B00;
+    }
+
+    .amount-text {
+        color: #8A8F98;
+        font-size: 0.85rem;
+        display: block;
+    }
+
+    .neon-progress-bg {
+        height: 6px;
+        background-color: #2A2D35;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .neon-progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    /* Duruma göre değişen renk sınıfları */
+    .color-green {
+        background-color: #00D287;
+        box-shadow: 0 0 10px #00D287;
+    }
+
+    .color-orange {
+        background-color: #FF6B00;
+        box-shadow: 0 0 10px #FF6B00;
+    }
+
+    .info-alert-text {
+        font-size: 0.9rem;
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 25px;
+    }
+
+    .text-green {
+        color: #00D287;
+    }
+
+    .text-orange {
+        color: #FF6B00;
+    }
+
+    .timer-box {
+        background-color: #121418;
+        border: 1px solid #2A2D35;
+        border-radius: 12px;
+        padding: 15px;
+        max-width: 160px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .timer-digits {
+        font-size: 2rem;
+        font-weight: 800;
+        font-family: monospace;
+        letter-spacing: 1px;
+    }
+
+    .timer-label {
+        color: #6C727F;
+        font-size: 0.75rem;
+        display: block;
+        margin-top: 5px;
+    }
+
+    .btn-new-order {
+        background-color: #FF6B00;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 40px;
+        transition: background 0.2s;
+    }
+
+        .btn-new-order:hover {
+            background-color: #E05E00;
+            color: white;
+        }
+</style>
+
+<div class="container success-wrapper">
+    <div class="success-circle">
+        <span class="success-checkmark">✓</span>
+    </div>
+
+    <h1 class="success-title">Ödeme Alındı!</h1>
+    <p class="success-subtitle">Sipariş tutarınız başarıyla havuza aktarıldı.</p>
+
+    <div class="status-card">
+        <div class="status-header">
+            <div>
+                <span class="pool-label">@ViewBag.RestoranAdi</span>
+                <h3 class="pool-heading">Havuz Durumu</h3>
+            </div>
+            <div>
+                <div class="percent-text" style="color: @(havuzDolduMu ? "#00D287" : "#FF6B00")">%@Math.Round(yuzde)</div>
+                <span class="amount-text">@toplanan.ToString("N0") / @hedef.ToString("N0") TL</span>
+            </div>
+        </div>
+
+        <div class="neon-progress-bg">
+            <div class="neon-progress-fill @(havuzDolduMu ? "color-green" : "color-orange")" style="width: @Math.Round(yuzde)%;"></div>
+        </div>
+
+        @if (havuzDolduMu)
+        {
+            <div class="info-alert-text text-green">
+                🎉 Harika! Havuz doldu! 10 dakikalık sipariş penceresi başladı.
+            </div>
+
+            <div class="timer-box" style="border-color: #00D287;">
+                <div class="timer-digits text-green" id="countdown">10:00</div>
+                <span class="timer-label">Kalan Süre</span>
+            </div>
+        }
+        else
+        {
+            <div class="info-alert-text text-orange">
+                ⏳ Ödemeniz eklendi ancak havuz henüz dolmadı. Diğer öğrencilerin katılması bekleniyor...
+            </div>
+
+            <div class="timer-box" style="border-color: #FF6B00;">
+                <div class="timer-digits text-orange">WAIT</div>
+                <span class="timer-label">Eksik: @((hedef - toplanan).ToString("N0")) ₺</span>
+            </div>
+        }
+    </div>
+
+    <a asp-controller="Sehirler" asp-action="Index" class="btn-new-order">
+        🔄 Ana Sayfaya Dön
+    </a>
+</div>
+
+@if (havuzDolduMu)
+{
+    <script>
+        let time = 600; // Tam 10 dakika (600 saniye)
+        const countdownEl = document.getElementById('countdown');
+
+        const interval = setInterval(function() {
+            if (time >= 0) {
+                let minutes = Math.floor(time / 60);
+                let seconds = time % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                countdownEl.innerHTML = minutes + ':' + seconds;
+                time--;
+            } else {
+                clearInterval(interval);
+                countdownEl.innerHTML = "SÜRE DOLDU";
+            }
+        }, 1000);
+    </script>
+}

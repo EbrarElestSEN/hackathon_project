@@ -1,0 +1,215 @@
+﻿@model IEnumerable<hackathon_project.Models.Yurtlar>
+
+@{
+    ViewData["Title"] = "Yurt Seç";
+}
+
+<style>
+    body {
+        background-color: #121418;
+        color: #FFFFFF;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .stepper-section {
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 40px;
+    }
+
+    .step-subtitle-top {
+        color: #FF6B00;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    .main-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .highlight-orange {
+        color: #FF6B00;
+    }
+
+    .step-desc {
+        color: #8A8F98;
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+    }
+
+    .steps-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .step-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+        .step-circle.completed {
+            background-color: #00D287;
+            color: white;
+        }
+
+        .step-circle.current {
+            background-color: transparent;
+            border: 2px solid #FF6B00;
+            color: #FF6B00;
+        }
+
+        .step-circle.pending {
+            background-color: #1E2128;
+            color: #6C727F;
+        }
+
+    .step-line {
+        width: 40px;
+        height: 2px;
+    }
+
+        .step-line.completed {
+            background-color: #00D287;
+        }
+
+        .step-line.pending {
+            background-color: #2A2D35;
+        }
+
+    /* Yurt Kartları Tasarımı */
+    .yurt-card {
+        background-color: #1E2128;
+        border: 1px solid #2A2D35;
+        border-radius: 16px;
+        padding: 25px;
+        display: block;
+        color: #FFFFFF;
+        text-decoration: none;
+        position: relative;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .yurt-card:hover {
+            transform: translateY(-4px);
+            border-color: #3A3D45;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            color: #FFFFFF;
+        }
+
+    .yurt-icon-box {
+        color: #FF6B00;
+        margin-bottom: 15px;
+    }
+
+    .yurt-name-text {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* Sağ üstteki yeşil öğrenci sayısı rozeti */
+    .student-badge {
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        color: #00D287;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* Geri Butonu */
+    .btn-back {
+        background-color: #1E2128;
+        border: 1px solid #2A2D35;
+        color: #8A8F98;
+        border-radius: 8px;
+        padding: 10px 24px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-back:hover {
+            background-color: #2A2D35;
+            color: #FFFFFF;
+        }
+</style>
+
+<div class="container mt-4">
+
+    <div class="stepper-section">
+        <div class="step-subtitle-top">ADIM 2 / 5</div>
+        <h1 class="main-title"><span class="highlight-orange">@ViewBag.SehirAdi</span> KYK Yurtları</h1>
+        <p class="step-desc">Yurdunu seç</p>
+
+        <div class="steps-container">
+            <div class="step-circle completed">✓</div>
+            <div class="step-line completed"></div>
+            <div class="step-circle current">2</div>
+            <div class="step-line pending"></div>
+            <div class="step-circle pending">3</div>
+            <div class="step-line pending"></div>
+            <div class="step-circle pending">4</div>
+            <div class="step-line pending"></div>
+            <div class="step-circle pending">5</div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2 justify-content-center">
+        @if (Model != null && Model.Any())
+        {
+            // Orijinal görseldeki gibi her karta farklı öğrenci sayısı simüle etmek için random görünümlü değerler
+            int seedNumber = 412;
+
+            foreach (var yurt in Model)
+            {
+                seedNumber += 137; // Her döngüde sayıyı değiştirelim
+
+                <div class="col-lg-5 col-md-6">
+                    <a asp-controller="Restoranlar" asp-action="Index" class="yurt-card">
+
+                        <div class="student-badge">@(seedNumber % 900 + 100) öğrenci</div>
+
+                        <div class="yurt-icon-box">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </div>
+
+                        <h3 class="yurt-name-text">@yurt.YurtAdi</h3>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted">
+                <p>Bu şehre ait kayıtlı yurt bulunamadı.</p>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mt-5">
+        <a asp-controller="Sehirler" asp-action="Index" class="btn-back">
+            ← Geri
+        </a>
+    </div>
+
+</div>
