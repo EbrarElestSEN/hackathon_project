@@ -1,20 +1,20 @@
-# 1. Aþama: Uygulamayý Derleme
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
+EXPOSE 8080
 
-# Proje dosyalarýný kopyala ve restore et
-COPY . ./
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["hackathon_project.csproj", "."]
 RUN dotnet restore
+COPY . .
+RUN dotnet build -c Release -o /app/build
 
-# Yayýnlama aþamasý
-RUN dotnet publish -c Release -o out
+FROM build AS publish
+RUN dotnet publish -c Release -o /app/publish
 
-# 2. Aþama: Çalýþma Zamaný (Runtime)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM base AS final
 WORKDIR /app
-COPY --from=build-env /app/out .
-
-# Render'ýn dinamik port atamasý için gerekli ayar
+RUN mkdir -p /app/data
+COPY --from=publish /app/publish .
 ENV ASPNETCORE_URLS=http://+:10000
-
 ENTRYPOINT ["dotnet", "hackathon_project.dll"]

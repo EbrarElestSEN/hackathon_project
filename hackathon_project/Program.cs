@@ -6,11 +6,23 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// DbContext'i sisteme tanýtýyoruz
+// DbContext'i sisteme tanï¿½tï¿½yoruz
 builder.Services.AddDbContext<HavuzYemekDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+
+// VeritabanÄ± dizinini oluÅŸtur ve tablolarÄ± hazÄ±rla
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<HavuzYemekDbContext>();
+    var connStr = app.Configuration.GetConnectionString("DefaultConnection") ?? "";
+    var dataSource = connStr.Replace("Data Source=", "").Trim();
+    var dir = Path.GetDirectoryName(dataSource);
+    if (!string.IsNullOrEmpty(dir))
+        Directory.CreateDirectory(dir);
+    db.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -28,6 +40,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Sehirler}/{action=Index}/{id?}"); // "Home" yerine "Sehirler" yazdýk
+    pattern: "{controller=Sehirler}/{action=Index}/{id?}"); // "Home" yerine "Sehirler" yazdï¿½k
 
 app.Run();

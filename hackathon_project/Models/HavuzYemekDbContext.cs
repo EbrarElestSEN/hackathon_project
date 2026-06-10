@@ -36,8 +36,10 @@ public partial class HavuzYemekDbContext : DbContext
     public virtual DbSet<Yurtlar> Yurtlars { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=HavuzYemekDB2;Trusted_Connection=True;TrustServerCertificate=True;");
+    {
+        if (!optionsBuilder.IsConfigured)
+            optionsBuilder.UseSqlite("Data Source=HavuzYemekDB.db");
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,7 +54,7 @@ public partial class HavuzYemekDbContext : DbContext
             entity.Property(e => e.KatilimId).HasColumnName("KatilimID");
             entity.Property(e => e.AnonymousAlias).HasMaxLength(50);
             entity.Property(e => e.HavuzId).HasColumnName("HavuzID");
-            entity.Property(e => e.KatilimZamani).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.KatilimZamani).HasDefaultValueSql("(datetime('now'))");
             entity.Property(e => e.KullaniciId).HasColumnName("KullaniciID");
             entity.Property(e => e.ToplamTutar).HasColumnType("decimal(10, 2)");
 
@@ -93,7 +95,7 @@ public partial class HavuzYemekDbContext : DbContext
             entity.Property(e => e.Adet).HasDefaultValue(1);
             entity.Property(e => e.HavuzId).HasColumnName("HavuzID");
             entity.Property(e => e.KullaniciId).HasColumnName("KullaniciID");
-            entity.Property(e => e.SiparisTarihi).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.SiparisTarihi).HasDefaultValueSql("(datetime('now'))");
             entity.Property(e => e.Tutar).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UrunId).HasColumnName("UrunID");
 
@@ -124,7 +126,7 @@ public partial class HavuzYemekDbContext : DbContext
             entity.Property(e => e.MevcutTutar).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.MinimumTutar).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.OlusturanKullaniciId).HasColumnName("OlusturanKullaniciID");
-            entity.Property(e => e.OlusturmaTarihi).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.OlusturmaTarihi).HasDefaultValueSql("(datetime('now'))");
             entity.Property(e => e.RestoranId).HasColumnName("RestoranID");
             entity.Property(e => e.UrunId).HasColumnName("UrunID");
 
@@ -172,7 +174,7 @@ public partial class HavuzYemekDbContext : DbContext
             entity.Property(e => e.AdSoyad).HasMaxLength(150);
             entity.Property(e => e.AktifMi).HasDefaultValue(true);
             entity.Property(e => e.Email).HasMaxLength(150);
-            entity.Property(e => e.KayitTarihi).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.KayitTarihi).HasDefaultValueSql("(datetime('now'))");
             entity.Property(e => e.SehirId).HasColumnName("SehirID");
             entity.Property(e => e.SifreHash).HasMaxLength(500);
             entity.Property(e => e.Telefon).HasMaxLength(20);
